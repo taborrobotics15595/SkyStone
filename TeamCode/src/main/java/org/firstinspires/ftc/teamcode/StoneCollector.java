@@ -14,7 +14,7 @@ public class StoneCollector {
     private ArrayList<DcMotor> motors;
     private DigitalChannel sensor;
 
-    private final double MAXPOWER = 0.3;
+    private final double MAXPOWER = 0.7;
     private double currentPower = 0;
 
     public StoneCollector(HardwareMap hardwareMap,String motor1,String motor2,String sensorName){
@@ -26,7 +26,7 @@ public class StoneCollector {
     }
 
     private void setMotorPower(double power){
-        motors.get(0).setPower(power);
+        motors.get(0).setPower(-power);
         motors.get(1).setPower(-power);
     }
 

@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 public class MecanumTeleOp extends LinearOpMode {
     MecanumDriveTrain robot;
     FoundationMover mover;
+    StoneCollector collector;
     ElapsedTime runtime;
 
     private double[] powers = {1,0.4};
@@ -30,8 +31,9 @@ public class MecanumTeleOp extends LinearOpMode {
 
         mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
 
+        collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
         runtime = new ElapsedTime();
-
+        boolean going = false;
         waitForStart();
 
         while (opModeIsActive()) {
@@ -46,12 +48,24 @@ public class MecanumTeleOp extends LinearOpMode {
                 Thread.sleep(400);
             }
 
-            if(gamepad1.left_bumper){
-                index = (index + 1)%powers.length;
-                power = powers[index];
+
+            if (gamepad1.b){
+                collector.activate(true);
                 Thread.sleep(400);
             }
 
+            if (gamepad1.x){
+                going = !going;
+                if (going){
+                    collector.stop();
+                }
+                else{
+                    collector.activate(false);
+                }
+                Thread.sleep(400);
+            }
+            collector.checkObtained();
+            idle();
             telemetry.addData("Drive Train information:","Motor Power: %.1f",power);
 
 
