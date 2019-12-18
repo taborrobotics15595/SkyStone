@@ -17,6 +17,7 @@ public class AutonomousDrarft extends LinearOpMode {
     int[] APPROACH_TARGET_VALUES;
     int[] ATTACK_VALUES;
     int[] ROTATE;
+    int[] FOUNDATION;
 
     double maxDrivePower = 0.7;
     @Override
@@ -36,9 +37,9 @@ public class AutonomousDrarft extends LinearOpMode {
         waitForStart();
         //driveToSkystone();
 
-        while(opModeIsActive()) {
-            alignWithTrackable(this.trackable);
-        }
+
+        alignWithTrackable(this.trackable);
+        move(maxDrivePower,FOUNDATION);
 
         vision.stop();
     }
@@ -72,7 +73,8 @@ public class AutonomousDrarft extends LinearOpMode {
         while(Math.abs(info[0] + 35) > 2 && Math.abs(info[1]) > 4){
             info = vision.findTrackableInfo(trackable);
             int direction = (int) ((info[0] + 35)/Math.abs(info[0] + 35));
-            telemetry.addData("Go to:",String.valueOf(direction));
+            int rotationDirection = (int)(info[1]/Math.abs(info[1]));
+            telemetry.addData("Go to:",direction + "Ritate to:" + rotationDirection);
             telemetry.update();
         }
 

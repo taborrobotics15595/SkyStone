@@ -28,8 +28,8 @@ public class StoneCollector {
     }
 
     private void setMotorPower(double power){
-        motors.get(0).setPower(power);
-        motors.get(1).setPower(-power);
+        motors.get(0).setPower(-power);
+        motors.get(1).setPower(power);
     }
 
     public void activate(boolean forward){
