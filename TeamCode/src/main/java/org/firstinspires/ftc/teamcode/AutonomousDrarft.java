@@ -12,6 +12,7 @@ public class AutonomousDrarft extends LinearOpMode {
     StoneCollector grabber;
     Vision vision;
 
+    String trackable = "Front Perimeter 1";
     int[] SLIDE_TARGET_VALUES;
     int[] APPROACH_TARGET_VALUES;
     int[] ATTACK_VALUES;
@@ -31,46 +32,53 @@ public class AutonomousDrarft extends LinearOpMode {
 
          */
         vision = new Vision(hardwareMap);
-
+        vision.activate();
         waitForStart();
-        driveToSkystone();
-        while(opModeIsActive()){
-            telemetry.addData("Visible:",vision.findTrackable());
-            telemetry.update();
+        //driveToSkystone();
+
+        while(opModeIsActive()) {
+            alignWithTrackable(this.trackable);
         }
 
+        vision.stop();
     }
 
     private void driveToSkystone() throws InterruptedException {
-        move(maxDrivePower,"forward");
+        move(maxDrivePower,APPROACH_TARGET_VALUES); //move up
         int lastDirection = 0;
         while (Math.abs(vision.angleToSkyStone()) > 5){
             double degrees = vision.angleToSkyStone();
             if (degrees != 390){
                 //go towards direction slightly
-                int direction = (int)(degrees/Math.abs(degrees));
-                move(direction*maxDrivePower,String.valueOf(direction));
-                Thread.sleep(1000);
+                int direction = (int)(degrees/Math.abs(degrees)); //left or right absed on sign
+                move(direction*maxDrivePower,SLIDE_TARGET_VALUES);
             }
             else{
-                move(maxDrivePower,"Find something");
-                Thread.sleep(1000);
+                move(lastDirection*maxDrivePower,SLIDE_TARGET_VALUES); //move left and right
+                lastDirection *= -1;
             }
         }
 
-        move(maxDrivePower,"turn");
-        Thread.sleep(1000);
+        move(maxDrivePower,ROTATE);
         //grabber.activate(true);
-        move(maxDrivePower,"attacj");
-        Thread.sleep(1000);
-        move(-maxDrivePower,"back");
-        Thread.sleep(1000);
+        move(maxDrivePower,ATTACK_VALUES);
+        move(-maxDrivePower,ATTACK_VALUES);
 
 
     }
 
-    private void move(double power,String direction){
-        telemetry.addData("Directions",direction);
-        telemetry.update();
+    private void alignWithTrackable(String trackable){
+        double[] info = vision.findTrackableInfo(trackable);
+        while(Math.abs(info[0] + 35) > 2 && Math.abs(info[1]) > 4){
+            info = vision.findTrackableInfo(trackable);
+            int direction = (int) ((info[0] + 35)/Math.abs(info[0] + 35));
+            telemetry.addData("Go to:",String.valueOf(direction));
+            telemetry.update();
+        }
+
+
+    }
+    private void move(double power,int[] positions){
+        driveTrain.goToPositions(positions,power);
     }
 }

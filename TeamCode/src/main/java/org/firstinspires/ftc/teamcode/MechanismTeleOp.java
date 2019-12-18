@@ -19,6 +19,10 @@ public class MechanismTeleOp extends LinearOpMode {
                 Thread.sleep(400);
             }
 
+            if (gamepad1.y){
+                collector.changePower();
+            }
+
             if (gamepad1.x){
                 going = !going;
                 if (going){
@@ -30,7 +34,8 @@ public class MechanismTeleOp extends LinearOpMode {
                 Thread.sleep(400);
             }
             collector.checkObtained();
-            idle();
+            telemetry.addData("Current Power",collector.getPower());
+            telemetry.update();
         }
     }
 }

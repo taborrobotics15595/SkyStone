@@ -31,7 +31,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
         mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
 
-        collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
+        //collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
         runtime = new ElapsedTime();
         boolean going = false;
         waitForStart();
@@ -48,7 +48,7 @@ public class MecanumTeleOp extends LinearOpMode {
                 Thread.sleep(400);
             }
 
-
+            /*
             if (gamepad1.b){
                 collector.activate(true);
                 Thread.sleep(400);
@@ -65,7 +65,8 @@ public class MecanumTeleOp extends LinearOpMode {
                 Thread.sleep(400);
             }
             collector.checkObtained();
-            idle();
+            */
+
             telemetry.addData("Drive Train information:","Motor Power: %.1f",power);
 
 
