@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class FoundationMover {
     private Servo servo1,servo2;
-    private final double[] MAXMIN1 = {1,0},MAXMIN2 = {0,1};
+    private final double[] MAXMIN1 = {0.7,0},MAXMIN2 = {0.3,1};
     private int index = 0;
 
     public FoundationMover(HardwareMap hardwareMap,String servoName1,String servoName2) {

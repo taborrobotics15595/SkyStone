@@ -48,7 +48,7 @@ public class DriveTrainHolonomic extends LinearOpMode {
             }
 
             robot.setPower(maxPower,powerY,powerX,turn);
-
+/*
             if (gamepad1.a){
                 driver.setPattern(RevBlinkinLedDriver.BlinkinPattern.SHOT_BLUE);
                 robot.goToPositions(target1,0.3);
@@ -63,7 +63,7 @@ public class DriveTrainHolonomic extends LinearOpMode {
                 robot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-
+*/
             int[] current = robot.getCurrentPositions();
             String message = formatString("Positions:",current);
             telemetry.addData("Time:", message);

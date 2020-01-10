@@ -94,7 +94,15 @@ public class Vision {
         return 390;
     }
 
-
+    public boolean visible(String name){
+        List<Recognition> recognitions = tfod.getRecognitions();
+        for(Recognition r:recognitions){
+            if (r.getLabel().equals(name)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void initTensorFlow(HardwareMap hardwareMap){
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(

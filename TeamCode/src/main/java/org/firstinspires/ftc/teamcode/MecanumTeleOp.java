@@ -10,13 +10,8 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
     MecanumDriveTrain robot;
-    FoundationMover mover;
-    StoneCollector collector;
-    ElapsedTime runtime;
-    DcMotor motor;
-    private double[] powers = {1,0.4};
-    private int index = 0;
-    private double power = powers[index];
+
+    private double power = 0.7;
     private int mode = 1;
 
 
@@ -30,13 +25,7 @@ public class MecanumTeleOp extends LinearOpMode {
         //robot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        motor = hardwareMap.get(DcMotor.class,"Motor");
 
-        mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
-
-        collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
-        runtime = new ElapsedTime();
-        boolean going = false;
         waitForStart();
 
         while (opModeIsActive()) {
@@ -46,44 +35,11 @@ public class MecanumTeleOp extends LinearOpMode {
 
             robot.setPower(power,powerY,powerX,turn);
 
-            if (gamepad1.right_bumper){
-                motor.setPower(0.5);
-            }
-            else if(gamepad1.left_bumper){
-                motor.setPower(-0.5);
-            }
-            else{
-                motor.setPower(0);
-            }
-            if (gamepad1.a){
-                mover.toggle();
-                Thread.sleep(400);
-            }
-
-
-            if (gamepad1.b){
-                collector.activate(true);
-                Thread.sleep(400);
-            }
-
-            if (gamepad1.x){
-                going = !going;
-                if (going){
-                    collector.stop();
-                }
-                else{
-                    collector.activate(false);
-                }
-                Thread.sleep(400);
-            }
 
             if (gamepad1.y){
                 mode *= -1;
             }
-            collector.checkObtained();
 
-
-            telemetry.addData("Drive Train information:","Motor Power: %.1f",power);
 
 
 

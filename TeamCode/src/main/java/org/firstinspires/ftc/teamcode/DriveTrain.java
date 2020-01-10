@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.ArrayList;
 
 public class DriveTrain {
@@ -82,7 +84,7 @@ public class DriveTrain {
         return positions;
     }
 
-    public void goToPositions(int[] target,double power){
+    public void driveOnTheLookOut(int [] target,double power,Vision vision,String name){
         for(int i = 0;i<motors.size();i++){
             motors.get(i).setTargetPosition(target[i]);
             motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -103,6 +105,45 @@ public class DriveTrain {
                     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     busy -= 1;
                 }
+            }
+            if (vision.visible(name)){
+                busy = 0;
+            }
+        }
+    }
+
+
+    public void goToPositions(int[] target, double power){
+        for(int i = 0;i<motors.size();i++){
+            motors.get(i).setTargetPosition(target[i]);
+            motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motors.get(i).setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+
+
+        int busy = 4;
+        while (busy > 0){
+            busy = 4;
+            String message = "";
+            for(DcMotor motor:motors){
+                if (motor.isBusy()){
+                    motor.setPower(power);
+                    message += motors.indexOf(motor) + "is busy";
+
+                }
+                else{
+                    motor.setPower(0);
+                    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    busy -= 1;
+                }
+
+            }
+            if (busy == 1 && motors.get(3).isBusy()){
+                motors.get(3).setPower(0);
+                motors.get(3).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motors.get(3).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                busy = 0;
             }
         }
     }

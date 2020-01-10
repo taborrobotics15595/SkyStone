@@ -15,7 +15,7 @@ public class EncoderCheck extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        motor = hardwareMap.get(DcMotor.class,"Motor");
+        motor = hardwareMap.get(DcMotor.class,"Motor3");
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -36,6 +36,7 @@ public class EncoderCheck extends LinearOpMode {
                     motor.setPower(power);
                 }
                 motor.setPower(0);
+                motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
             current = motor.getCurrentPosition();
