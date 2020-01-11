@@ -41,13 +41,16 @@ public class ValueFinder extends LinearOpMode {
                 message += i + " ";
             }
 
-            if (gamepad1.a){
+            if (gamepad1.x){
                 driveTrain.goToPositions(target,maxPower);
             }
-            if (gamepad1.x){
+            if (gamepad1.a){
                 target = current;
             }
 
+
+
+            /*
             angle = finder.angleToSkyStone();
 
             if (angle != 390){
@@ -58,7 +61,13 @@ public class ValueFinder extends LinearOpMode {
                 message += "can't see";
             }
 
-            telemetry.addData("Motor values:",message);
+            double[] data = finder.getInfo();
+            if (data != null){
+                message += "Distance: " + data[0] + "Angle: " + data[1];
+            }
+
+             */
+            telemetry.addData("Status:",message);
             telemetry.update();
         }
     }

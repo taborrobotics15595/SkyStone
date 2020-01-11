@@ -19,6 +19,7 @@ public class FinalTeleOp extends LinearOpMode {
     private double power = powers[index];
     private int mode = 1;
 
+    int[] current;
 
     double powerY,powerX,turn;
 
@@ -26,8 +27,8 @@ public class FinalTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new MecanumDriveTrain(hardwareMap,"Motor1", "Motor2", "Motor3", "Motor4");
-        //robot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //robot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motor = hardwareMap.get(DcMotor.class,"Motor");
@@ -83,8 +84,13 @@ public class FinalTeleOp extends LinearOpMode {
             }
             collector.checkObtained();
 
-
-            telemetry.addData("Drive Train information:","Motor Power: %.1f",power);
+            current = robot.getCurrentPositions();
+            String message = "Current positions: ";
+            for(int i:current){
+                message += i + " ";
+            }
+            telemetry.addData("Drive Train information:",message);
+            telemetry.update();
 
 
 

@@ -124,11 +124,9 @@ public class DriveTrain {
         int busy = 4;
         while (busy > 0){
             busy = 4;
-            String message = "";
             for(DcMotor motor:motors){
                 if (motor.isBusy()){
                     motor.setPower(power);
-                    message += motors.indexOf(motor) + "is busy";
 
                 }
                 else{
@@ -139,12 +137,7 @@ public class DriveTrain {
                 }
 
             }
-            if (busy == 1 && motors.get(3).isBusy()){
-                motors.get(3).setPower(0);
-                motors.get(3).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motors.get(3).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                busy = 0;
-            }
+
         }
     }
 
