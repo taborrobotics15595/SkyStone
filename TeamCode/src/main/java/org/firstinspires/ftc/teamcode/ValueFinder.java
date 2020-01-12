@@ -15,7 +15,7 @@ public class ValueFinder extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        finder = new Vision(hardwareMap);
+        finder = new Vision(hardwareMap,"Dist");
         finder.activate();
 
         driveTrain = new MecanumDriveTrain(hardwareMap,"Motor1","Motor2","Motor3","Motor4");
@@ -60,13 +60,13 @@ public class ValueFinder extends LinearOpMode {
             else{
                 message += "can't see";
             }
-
+            */
             double[] data = finder.getInfo();
             if (data != null){
                 message += "Distance: " + data[0] + "Angle: " + data[1];
             }
 
-             */
+
             telemetry.addData("Status:",message);
             telemetry.update();
         }

@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-@Autonomous
-public class Autonomous1 extends LinearOpMode {
+public class AutonomousMode extends LinearOpMode {
     Vision finder;
     DcMotor motor;
     MecanumDriveTrain driveTrain;
@@ -29,8 +24,7 @@ public class Autonomous1 extends LinearOpMode {
     double driveTo = (23.5 - 17.5)*0.0254;
     double drivePower = 1;
 
-    @Override
-    public void runOpMode(){
+    protected void initialize(){
         motor = hardwareMap.get(DcMotor.class,"Motor");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -49,16 +43,28 @@ public class Autonomous1 extends LinearOpMode {
 
         telemetry.addData("Status","Ready");
         telemetry.update();
+    }
 
-
-
-        waitForStart();
+    protected void lowerArm(){
         grabber.moveServo();
         motor.setPower(0.5);
         sleep(500);
         motor.setPower(0);
+    }
 
+    protected void raiseArm(){
+        motor.setPower(-0.5);
+        sleep(500);
+        motor.setPower(0);
+    }
 
+    protected void ejectBlock(){
+        grabber.activate(false);
+        sleep(200);
+        grabber.stop();
+    }
+
+    protected void lineUp(){
         driveTrain.goToPositions(encodersFromDistance(sideways,driveTo),drivePower);
         double angle = finder.angleToSkyStone();
         while (angle == 390){
@@ -72,7 +78,9 @@ public class Autonomous1 extends LinearOpMode {
         telemetry.update();
 
         driveTrain.goToPositions(encodersFromDistance(forward,distanceX),drivePower);
+    }
 
+    protected void getBlock(){
         telemetry.addData("Status", "In Line, rotating");
         telemetry.update();
 
@@ -90,8 +98,9 @@ public class Autonomous1 extends LinearOpMode {
         telemetry.addData("Status","getting back");
         telemetry.update();
         driveTrain.goToPositions(encodersFromDistance(forward,-19*0.0254),drivePower);
+    }
 
-
+    protected void goBuildSite(double distance){
         while(finder.getInfo() == null){
 
         }
@@ -102,42 +111,44 @@ public class Autonomous1 extends LinearOpMode {
         telemetry.update();
 
         driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-(90 - targetAngle))),drivePower);
-        double dist = (data[0] - 44)*0.0254;
+        double dist = (data[0] - distance)*0.0254;
         driveTrain.goToPositions(encodersFromDistance(forward,-dist),drivePower);
-        /*
-        motor.setPower(-0.5);
-        sleep(500);
-        motor.setPower(0);
+    }
 
-         */
-
-
+    protected void approachFoundation(){
         driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-90)),drivePower);
 
         while(finder.getInfo() == null){
 
         }
         sleep(200);
-        data = finder.getInfo();
+        double[] data = finder.getInfo();
         double y = data[2];
         telemetry.addData("Status","Grabbing " + y);
         telemetry.update();
         driveTrain.goToPositions(encodersFromDistance(forward,-(-32.6-y)*0.0254),drivePower);
+    }
+
+    protected void moveFoundation(int direction){
         mover.toggle();
         sleep(400);
         driveTrain.setPower(drivePower,0.5,0,0);
         sleep(1000);
-        driveTrain.setPower(drivePower,0.5,0,0.5);
+        driveTrain.setPower(drivePower,0.5,0,(direction)*0.5);
         sleep(1200);
         driveTrain.setPower(drivePower,0,0,0);
         mover.toggle();
+    }
 
+    protected void park(){
         driveTrain.goToPositions(encodersFromDistance(diagonal,-50*0.0254),1);
+    }
+    @Override
+    public void runOpMode(){
 
     }
 
-
-    private int[] encodersFromDistance(int[] direction,double distance){
+    protected int[] encodersFromDistance(int[] direction,double distance){
         int[] positions = new int[direction.length];
         int encoder = (int) (distance*TICKSPERREV/(Math.PI*WHEEL_DIAMETER));
         for(int i = 0;i<positions.length;i++){
@@ -146,7 +157,7 @@ public class Autonomous1 extends LinearOpMode {
         return positions;
     }
 
-    private double rotationDistance(double theta){
+    protected double rotationDistance(double theta){
         return  Math.toRadians(theta)*Math.sqrt(Math.pow(CAR_WIDTH/2,2) + Math.pow(CAR_HEIGHT/2,2));
 
     }

@@ -32,7 +32,7 @@ public class FinalTeleOp extends LinearOpMode {
         robot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motor = hardwareMap.get(DcMotor.class,"Motor");
-
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
 
         collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
@@ -48,27 +48,28 @@ public class FinalTeleOp extends LinearOpMode {
 
             robot.setPower(power,powerY,powerX,turn);
 
-            if (gamepad1.right_bumper){
+            if (gamepad2.left_bumper){
                 motor.setPower(0.5);
             }
-            else if(gamepad1.left_bumper){
+            else if(gamepad2.right_bumper){
                 motor.setPower(-0.5);
             }
             else{
                 motor.setPower(0);
             }
-            if (gamepad1.a){
+
+            if (gamepad2.b){
                 mover.toggle();
                 Thread.sleep(400);
             }
 
 
-            if (gamepad1.b){
+            if (gamepad2.a){
                 collector.activate(true);
                 Thread.sleep(400);
             }
 
-            if (gamepad1.x){
+            if (gamepad2.x){
                 going = !going;
                 if (going){
                     collector.stop();

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
@@ -7,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -38,12 +40,17 @@ public class Vision {
     private OpenGLMatrix lastLocation = null;
     private VuforiaTrackables targetsSkyStone;
 
+    private Rev2mDistanceSensor distanceSensor;
 
-    public Vision(HardwareMap hardwareMap){
+    public Vision(HardwareMap hardwareMap,String sensorName){
         initVuforia(hardwareMap);
         initTensorFlow(hardwareMap);
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class,sensorName);
     }
 
+    public double getDistance(){
+        return distanceSensor.getDistance(DistanceUnit.METER);
+    }
     public void activate(){
         targetsSkyStone.activate();
         tfod.activate();
@@ -71,7 +78,7 @@ public class Vision {
         if (targetVisible) {
             Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
             VectorF translation = lastLocation.getTranslation();
-            return new double[]{translation.get(0)/mmPerInch,rotation.thirdAngle};
+            return new double[]{translation.get(0)/mmPerInch,rotation.thirdAngle,translation.get(1)/mmPerInch};
         }
         else {
             return null;
