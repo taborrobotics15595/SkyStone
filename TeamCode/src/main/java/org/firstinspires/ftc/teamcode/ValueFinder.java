@@ -61,10 +61,9 @@ public class ValueFinder extends LinearOpMode {
                 message += "can't see";
             }
             */
-            double[] data = finder.getInfo();
-            if (data != null){
-                message += "Distance: " + data[0] + "Angle: " + data[1];
-            }
+            double data = finder.getDistance();
+            message += "Distance: " + data;
+
 
 
             telemetry.addData("Status:",message);

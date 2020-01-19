@@ -11,6 +11,9 @@ public class RedParkAutonomous extends AutonomousMode {
 
         waitForStart();
 
-        driveTrain.goToPositions(encodersFromDistance(forward,23.75*0.0254),drivePower);
+        lowerArm(1);
+        driveTrain.goToPositions(encodersFromDistance(forward,5*0.0254),drivePower);
+
+
     }
 }

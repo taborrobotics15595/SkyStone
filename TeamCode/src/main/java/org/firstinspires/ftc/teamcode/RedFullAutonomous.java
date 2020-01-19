@@ -11,18 +11,20 @@ public class RedFullAutonomous extends AutonomousMode {
 
         waitForStart();
 
-        lowerArm();
+        //lowerArm(1);
 
         lineUp();
 
         getBlock();
 
-        goBuildSite(44);
+        goBuildSite(46.5);
+
+        //raiseArm(0.5);
 
         approachFoundation();
 
         moveFoundation(1);
 
-        park();
+        //park();
     }
 }

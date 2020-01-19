@@ -11,29 +11,21 @@ public class RedSkystoneOnlyAutonomous extends AutonomousMode {
 
         waitForStart();
 
-        lowerArm();
+        lowerArm(1);
 
         lineUp();
 
         getBlock();
 
-        double distance = (22.75 * 3  - 18.5)* 0.0254 - CAR_HEIGHT;
+        double distance = (22.75 * 3  - 20)* 0.0254;
         goBuildSite(distance);
 
-        raiseArm();
+        raiseArm(0.5);
 
         ejectBlock();
 
-        driveTrain.goToPositions(encodersFromDistance(forward,distance),drivePower);
-
-    }
-
-    @Override
-    protected void goBuildSite(double distance){
-        double d = (22.75 * 3 * 0.0254) - finder.getDistance() + distance;
-        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-90)),drivePower);
-        driveTrain.goToPositions(encodersFromDistance(forward,-d),drivePower);
-
+        lowerArm(0.5);
+        driveTrain.goToPositions(encodersFromDistance(forward,-distance),drivePower);
 
     }
 }

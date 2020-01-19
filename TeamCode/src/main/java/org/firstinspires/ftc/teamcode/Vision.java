@@ -48,6 +48,7 @@ public class Vision {
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class,sensorName);
     }
 
+
     public double getDistance(){
         return distanceSensor.getDistance(DistanceUnit.METER);
     }

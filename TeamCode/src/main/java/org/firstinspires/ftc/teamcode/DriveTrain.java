@@ -84,39 +84,12 @@ public class DriveTrain {
         return positions;
     }
 
-    public void driveOnTheLookOut(int [] target,double power,Vision vision,String name){
-        for(int i = 0;i<motors.size();i++){
-            motors.get(i).setTargetPosition(target[i]);
-            motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motors.get(i).setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-
-        int busy = 4;
-        while (busy > 0){
-            busy = 4;
-            for(DcMotor motor:motors){
-                if (motor.isBusy()){
-                    motor.setPower(power);
-                }
-                else{
-                    motor.setPower(0);
-                    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    busy -= 1;
-                }
-            }
-            if (vision.visible(name)){
-                busy = 0;
-            }
-        }
-    }
 
 
     public void goToPositions(int[] target, double power){
         for(int i = 0;i<motors.size();i++){
-            motors.get(i).setTargetPosition(target[i]);
-            motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motors.get(i).setTargetPosition(target[i] + motors.get(i).getCurrentPosition());
+            //motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motors.get(i).setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
@@ -130,9 +103,10 @@ public class DriveTrain {
 
                 }
                 else{
-                    motor.setPower(0);
-                    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    motor.setPower(0);
+                    //motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
                     busy -= 1;
                 }
 
@@ -140,6 +114,7 @@ public class DriveTrain {
 
         }
     }
+
 
 
 

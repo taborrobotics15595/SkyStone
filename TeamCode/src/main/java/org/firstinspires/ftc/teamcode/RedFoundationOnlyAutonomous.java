@@ -11,9 +11,9 @@ public class RedFoundationOnlyAutonomous extends AutonomousMode {
 
         waitForStart();
 
-        driveTrain.goToPositions(encodersFromDistance(forward,(47 - CAR_HEIGHT)*0.0254),drivePower);
 
-        driveTrain.goToPositions(encodersFromDistance(sideways,-(4 + (34.5)/2 -2*22.75 - CAR_WIDTH)*0.0254),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(forward,47*0.0254 - CAR_WIDTH),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(sideways,(4 + (34.5)/2 -2*22.75 - CAR_HEIGHT)*0.0254),drivePower);
 
         moveFoundation(1);
     }

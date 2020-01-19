@@ -53,7 +53,6 @@ public class Autonomous1 extends LinearOpMode {
 
 
         waitForStart();
-        grabber.moveServo();
         motor.setPower(0.5);
         sleep(500);
         motor.setPower(0);

@@ -15,9 +15,9 @@ public class EncoderCheck extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        motor = hardwareMap.get(DcMotor.class,"Motor3");
+        motor = hardwareMap.get(DcMotor.class,"Motor");
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
@@ -32,12 +32,14 @@ public class EncoderCheck extends LinearOpMode {
             if (gamepad1.x){
                 motor.setTargetPosition(target);
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motor.setPower(power);
                 while(motor.isBusy()){
-                    motor.setPower(power);
+
                 }
+                motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 motor.setPower(0);
-                motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
             }
             current = motor.getCurrentPosition();
             telemetry.addData("Motor status: ","Current Position: " + current + "Target: " + target);

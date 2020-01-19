@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp
 public class FinalTeleOp extends LinearOpMode {
     MecanumDriveTrain robot;
-    FoundationMover mover;
+    //FoundationMover mover;
     StoneCollector collector;
     ElapsedTime runtime;
     DcMotor motor;
@@ -33,14 +33,14 @@ public class FinalTeleOp extends LinearOpMode {
 
         motor = hardwareMap.get(DcMotor.class,"Motor");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
 
         collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
         runtime = new ElapsedTime();
         boolean going = false;
         waitForStart();
 
-        collector.moveServo();
         while (opModeIsActive()) {
             powerY = -mode*Range.clip(gamepad1.left_stick_y, -power, power);
             powerX = mode*Range.clip(gamepad1.left_stick_x, -power, power);
@@ -48,28 +48,28 @@ public class FinalTeleOp extends LinearOpMode {
 
             robot.setPower(power,powerY,powerX,turn);
 
-            if (gamepad2.left_bumper){
+            if (gamepad1.left_bumper){
                 motor.setPower(0.5);
             }
-            else if(gamepad2.right_bumper){
+            else if(gamepad1.right_bumper){
                 motor.setPower(-0.5);
             }
             else{
                 motor.setPower(0);
             }
-
+            /*
             if (gamepad2.b){
                 mover.toggle();
                 Thread.sleep(400);
             }
 
-
-            if (gamepad2.a){
+            */
+            if (gamepad1.a){
                 collector.activate(true);
                 Thread.sleep(400);
             }
 
-            if (gamepad2.x){
+            if (gamepad1.x){
                 going = !going;
                 if (going){
                     collector.stop();
