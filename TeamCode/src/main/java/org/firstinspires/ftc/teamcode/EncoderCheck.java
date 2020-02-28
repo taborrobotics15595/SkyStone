@@ -10,12 +10,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @TeleOp
 public class EncoderCheck extends LinearOpMode {
     DcMotor motor;
-    double power = 0.5;
+    double power = 0.8;
     int target = 0,current = 0;
 
     @Override
     public void runOpMode(){
-        motor = hardwareMap.get(DcMotor.class,"Motor");
+        motor = hardwareMap.get(DcMotor.class,"Extend");
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

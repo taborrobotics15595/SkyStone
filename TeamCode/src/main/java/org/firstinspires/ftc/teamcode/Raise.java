@@ -14,6 +14,7 @@ public class Raise extends AutonomousMode {
         waitForStart();
 
         raiseArm(1);
+        stop();
 
 
     }

@@ -30,7 +30,8 @@ public class AutonomousMode extends LinearOpMode {
         motor = hardwareMap.get(DcMotor.class,"Motor");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        finder = new Vision(hardwareMap,"Dist");
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        finder = new Vision(hardwareMap,"Dist","Dist2");
         driveTrain = new MecanumDriveTrain(hardwareMap,"Motor1","Motor2","Motor3","Motor4");
         driveTrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveTrain.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -70,18 +71,18 @@ public class AutonomousMode extends LinearOpMode {
 
     protected void ejectBlock(){
         grabber.activate(false);
-        sleep(700);
+        sleep(900);
         grabber.stop();
     }
 
     protected void lineUp(){
+        grabber.activate(false);
         driveAndMoveArm(encodersFromDistance(sideways,driveTo),drivePower,1700);
-        //driveTrain.goToPositions(encodersFromDistance(sideways,driveTo),drivePower);
         double start = runtime.seconds();
-        double angle = finder.angleToSkyStone();
+        double angle = finder.angleToSkystone();
         boolean stopped = false;
         while (angle == 390 &&opModeIsActive()){
-            angle = finder.angleToSkyStone();
+            angle = finder.angleToSkystone();
             telemetry.addData("Status","Looking" + runtime.seconds());
             telemetry.update();
             if (runtime.seconds() >= start + 3){
@@ -90,25 +91,29 @@ public class AutonomousMode extends LinearOpMode {
             }
         }
         double distanceX = 0;
+        String message = "";
         if (!stopped){
-            distanceX = (23.5 * 0.0254) * Math.tan(Math.toRadians(angle));
-            if (distanceX < 0){
-                distanceX -= 3*0.0254;
+            distanceX = (22.75 * 0.0254) * Math.tan(Math.toRadians(angle));
+            message = "First: " + distanceX;
+            if (distanceX > 0.15){
+                distanceX = 0.2;
+            }
+            else if (distanceX < -0.01){
+                distanceX = -0.22;
             }
             else{
-                distanceX += 0.0254;
+                distanceX = 0;
             }
 
         }
 
-
-        telemetry.addData("Distance", distanceX);
+        telemetry.addData("Distance", message + "Second: " + distanceX);
         telemetry.update();
 
         driveTrain.goToPositions(encodersFromDistance(forward,distanceX),drivePower);
     }
 
-    protected void getBlock(){
+    protected void getBlock(int direction){
         telemetry.addData("Status", "In Line, rotating");
         telemetry.update();
 
@@ -117,7 +122,7 @@ public class AutonomousMode extends LinearOpMode {
         telemetry.addData("Status","grabbing");
         telemetry.update();
 
-        driveTrain.goToPositions(encodersFromDistance(forward,33*0.0254),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(forward,35*0.0254),drivePower);
         double start = runtime.seconds();
         while(!grabber.checkObtained() && runtime.seconds() < start + 0.5 &&opModeIsActive()){
 
@@ -125,48 +130,73 @@ public class AutonomousMode extends LinearOpMode {
         grabber.stop();
         telemetry.addData("Status","getting back");
         telemetry.update();
-        driveTrain.goToPositions(encodersFromDistance(forward,-18*0.0254),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(forward,-18.5*0.0254),drivePower);
     }
 
-    protected void goBuildSite(double distance){
+    protected void goBuildSite(double distance,double direction){
+        /*
+        double d = finder.getDistance();
+        double angle = direction*finder.getAngle();
+        telemetry.addData("Status:","Angle: " + angle + " Distance: " + d);
+        telemetry.update();
+        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-direction*(90 - angle))),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(forward,direction*((72  + distance)*0.0254 - CAR_WIDTH/2 - d)),drivePower);
+        */
+        boolean stopped =false;
+        double start= runtime.seconds();
         while(finder.getInfo() == null &&opModeIsActive()){
-
+            if (runtime.seconds()>=start + 3){
+                stopped = true;
+                break;
+            }
         }
         sleep(700);
         double[] data = finder.getInfo();
-        double targetAngle = (data[1]/Math.abs(data[1]))*(180 - Math.abs(data[1]));
-        telemetry.addData("Status","Going for foundation" + String.valueOf(data[1]) + "\n"  +String.valueOf(targetAngle));
+
+        double targetAngle= 0;
+        double dist = 0;
+        if(stopped){
+            targetAngle = -90;
+            dist = -88*0.0254;
+        }
+        else{
+            targetAngle = -90 + (Math.abs(data[1])/data[1])*(data[1]);
+            dist = (data[0] - distance)*0.0254;
+        }
+        telemetry.addData("Status","Going for foundation" + targetAngle);
         telemetry.update();
 
-        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-(90 - targetAngle))),drivePower);
-        double dist = (data[0] - distance)*0.0254;
-        driveTrain.goToPositions(encodersFromDistance(forward,-dist),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(targetAngle)),drivePower);
+
+        driveAndMoveArm(encodersFromDistance(forward,-direction*dist),drivePower,-850);
+
+
     }
 
     protected void approachFoundation(){
         double distance = finder.getDistance();
-        while(distance > 2 &&opModeIsActive()){
-            distance = finder.getDistance();
-        }
 
-        telemetry.addData("Status","Grabbing " + distance);
+        double angle = finder.getAngle();
+
+
+        telemetry.addData("Status:","Angle: " + angle + " Distance: " + distance);
         telemetry.update();
-        driveAndMoveArm(encodersFromDistance(rotation,rotationDistance(90)),drivePower,-850);
+
+        if (Double.isNaN(angle)){
+            angle = 0;
+            distance = finder.getOneDistance();
+        }
+        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(90 + angle)),drivePower);
         //driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(90)),drivePower);
         driveTrain.goToPositions(encodersFromDistance(forward,distance),drivePower);
+        ejectBlock();
     }
 
     protected void moveFoundation(int direction){
         lowerArm(0.5);
-        driveTrain.goToPositions(encodersFromDistance(forward,-(24.5*2*0.0254 - CAR_HEIGHT)),drivePower);
-        raiseArm(0.7);
-        grabber.activate(false);
+        driveTrain.goToPositions(encodersFromDistance(forward,-(23*2*0.0254 - CAR_HEIGHT)),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-direction*180)),drivePower);
 
-
-        driveTrain.goToPositions(encodersFromDistance(sideways,direction*23*0.0254),drivePower);
-        grabber.stop();
-        driveTrain.goToPositions(encodersFromDistance(forward,23*0.0254),drivePower);
-        driveTrain.goToPositions(encodersFromDistance(sideways,direction*23*0.0254),drivePower);
 
         /*
         //mover.toggle();
@@ -181,9 +211,15 @@ public class AutonomousMode extends LinearOpMode {
          */
     }
 
-    protected void park(){
-        driveTrain.goToPositions(encodersFromDistance(diagonal,-50*0.0254),1);
+    protected void park(int direction){
+        driveAndMoveArm(encodersFromDistance(forward,-35*0.0254),drivePower,-1200);
+
+
     }
+
+
+
+
     @Override
     public void runOpMode(){
 
@@ -198,9 +234,8 @@ public class AutonomousMode extends LinearOpMode {
         return positions;
     }
 
-    protected double rotationDistance(double theta){
+    public double rotationDistance(double theta){
         return  Math.toRadians(theta)*Math.sqrt(Math.pow(CAR_WIDTH/2,2) + Math.pow(CAR_HEIGHT/2,2));
-
     }
 
     protected void driveAndMoveArm(int[] targets,double power,int target){
@@ -216,13 +251,15 @@ public class AutonomousMode extends LinearOpMode {
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         toMove.add(motor);
 
-
+        String motors = "";
         int busy = 5;
         while(busy > 0 && opModeIsActive()){
             busy = 5;
+            motors = "";
             for (DcMotor motor:toMove){
                 if (motor.isBusy()){
                     motor.setPower(power);
+                    motors += "Motor " +toMove.indexOf(motor) + "is busy";
                 }
                 else{
                     motor.setPower(0);
@@ -230,6 +267,8 @@ public class AutonomousMode extends LinearOpMode {
                     busy -= 1;
                 }
             }
+            telemetry.addData("Motors",motors);
+            telemetry.update();
         }
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }

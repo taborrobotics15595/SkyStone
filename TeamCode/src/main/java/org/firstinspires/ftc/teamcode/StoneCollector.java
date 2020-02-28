@@ -15,17 +15,27 @@ public class StoneCollector {
     private ArrayList<DcMotor> motors;
     private DigitalChannel sensor;
 
-    private final double[] POWERS = {0.3};
-    private int index = 0;
-    private double maxPower = POWERS[index];
+
+    private double inPower = 0.7;
+    private double outPower = -0.65;
     private double currentPower = 0;
+
+
+
+
+
 
     public StoneCollector(HardwareMap hardwareMap,String motor1,String motor2,String sensorName){
         this.motors = new ArrayList<>();
         this.motors.add(hardwareMap.get(DcMotor.class,motor1));
         this.motors.add(hardwareMap.get(DcMotor.class,motor2));
+
         this.sensor = hardwareMap.get(DigitalChannel.class,sensorName);
         this.sensor.setMode(DigitalChannel.Mode.INPUT);
+
+
+
+
 
     }
 
@@ -36,17 +46,12 @@ public class StoneCollector {
     }
 
     public void activate(boolean forward){
-        currentPower = (forward)?(0.2 + maxPower):-maxPower;
+        currentPower = (forward)?inPower:outPower;
         setMotorPower(currentPower);
     }
 
-    public double getPower(){
-        return maxPower;
-    }
-    public void changePower(){
-        index = (index + 1)%POWERS.length;
-        maxPower = POWERS[index];
-    }
+
+
 
     public boolean checkObtained(){
         if (!sensor.getState()) {

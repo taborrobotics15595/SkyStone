@@ -9,13 +9,16 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.ArrayList;
 
 public class DriveTrain {
+    //empty motor ArrayList
     ArrayList<DcMotor> motors = new ArrayList<>();
 
+    //motor configuration arrays
     double[] forward = new double[4];
     double[] sideways = new double[4];
     double[] turn = new double[4];
 
     public DriveTrain(HardwareMap hardwareMap,String ... names){
+        //initialize each motor and add them to ArrayList
         for(String name:names){
             DcMotor motor = hardwareMap.get(DcMotor.class,name);
             this.motors.add(motor);
@@ -89,10 +92,8 @@ public class DriveTrain {
     public void goToPositions(int[] target, double power){
         for(int i = 0;i<motors.size();i++){
             motors.get(i).setTargetPosition(target[i] + motors.get(i).getCurrentPosition());
-            //motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motors.get(i).setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-
 
         int busy = 4;
         while (busy > 0){
@@ -105,12 +106,44 @@ public class DriveTrain {
                 else{
                     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     motor.setPower(0);
+                    busy -= 1;
+                }
+
+            }
+        }
+    }
+
+    public void checkEncoders(int[] target, double power,Telemetry telemetry){
+        for(int i = 0;i<motors.size();i++){
+            motors.get(i).setTargetPosition(target[i] + motors.get(i).getCurrentPosition());
+            //motors.get(i).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motors.get(i).setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+
+
+        int busy = 4;
+        String message = "";
+        while (busy > 0){
+            message = "";
+            busy = 4;
+            for(DcMotor motor:motors){
+                if (motor.isBusy()){
+                    motor.setPower(power);
+                    message += "Motor " + motors.indexOf(motor) + " is busy";
+
+                }
+                else{
+                    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    motor.setPower(0);
                     //motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
                     busy -= 1;
                 }
 
             }
+            telemetry.addData("Motors:",message);
+            telemetry.update();
+
 
         }
     }

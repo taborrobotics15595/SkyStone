@@ -6,18 +6,38 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 public class BlueFoundationOnlyAutonomous extends AutonomousMode {
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() {
 
         initialize();
 
         waitForStart();
 
-        //lowerArm();
-        driveTrain.goToPositions(encodersFromDistance(sideways,(47.25)*0.0254 - CAR_WIDTH),drivePower);
-        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-90)),drivePower);
-        driveTrain.goToPositions(encodersFromDistance(sideways,(4 + (34.5)/2 -2*22.75 - CAR_HEIGHT)*0.0254),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(forward,47*0.0254 - CAR_HEIGHT),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(sideways,(22.75)*0.0254),drivePower);
 
         moveFoundation(-1);
+
+        park(1);
+    }
+
+    @Override
+    protected void moveFoundation(int direction){
+        lowerArm(1);
+        driveTrain.goToPositions(encodersFromDistance(forward,-(23*2*0.0254 - CAR_HEIGHT)),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(rotation,rotationDistance(-direction*180)),drivePower);
+
+
+        /*
+        //mover.toggle();
+        sleep(400);
+        driveTrain.setPower(drivePower,0.5,0,0);
+        sleep(1000);
+        driveTrain.setPower(drivePower,0.5,0,(direction)*0.5);
+        sleep(1600);
+        driveTrain.setPower(drivePower,0,0,0);
+        //mover.toggle();
+
+         */
     }
 
 }

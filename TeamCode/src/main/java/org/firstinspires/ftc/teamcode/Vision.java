@@ -28,7 +28,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD_MODEL_ASSET;
 
 public class Vision {
-    final float mmPerInch        = 25.4f;
+    final float mmPerInch = 25.4f;
 
     final String VUFORIA_KEY = "ASHHQIj/////AAAAGXYJVW7cAUFsgkCKi6Nhif9NSD8eT9qEc1ACRGnc4hTvEXGEXuyMiud30yKeNLWeVSRaauEwn7EsvmW3hLBIPAoP1O5tVZ3AKXoP7gtDsaqTX9zP457gxk4vDSBmO4vNsHgl4sa+ijZTb50UJ3nvA92U/4lPicHcyLYenOpWGXEe/4MJF1P6uQ/Hp4M0n2mrLRw8Q5xzjyV5CSY+Vv1H4/mCYH0zlwOl/ScN/ibmouIT6mOJfWQjlvx8xaIpbg5slN5j7L7CGrRs2284z1WF6aSn7Fo20IUe/FevV+ZLKmgAMZGmizpx91L7SskSWNSyjn6S/a/wDVPCScUm/iEEouKOEAa4yMkCYll62tn6VR8q";
 
@@ -40,28 +40,47 @@ public class Vision {
     private OpenGLMatrix lastLocation = null;
     private VuforiaTrackables targetsSkyStone;
 
-    private Rev2mDistanceSensor distanceSensor;
 
-    public Vision(HardwareMap hardwareMap,String sensorName){
+    private Rev2mDistanceSensor distanceSensor, distanceSensor2;
+    final static double SENSOR_DISTANCE = 11.25 * 0.0254;
+
+    public Vision(HardwareMap hardwareMap, String sensorName, String sensor2Name) {
         initVuforia(hardwareMap);
         initTensorFlow(hardwareMap);
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class,sensorName);
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, sensorName);
+        distanceSensor2 = hardwareMap.get(Rev2mDistanceSensor.class, sensor2Name);
     }
 
 
-    public double getDistance(){
-        return distanceSensor.getDistance(DistanceUnit.METER);
+    public double getDistance() {
+        return (distanceSensor.getDistance(DistanceUnit.METER) + distanceSensor2.getDistance(DistanceUnit.METER)) / 2;
     }
-    public void activate(){
+
+    public double getAngle() {
+        double diff = distanceSensor.getDistance(DistanceUnit.METER) - distanceSensor2.getDistance(DistanceUnit.METER);
+        return Math.toDegrees(Math.asin(diff / SENSOR_DISTANCE));
+    }
+
+    public double getOneDistance(){
+        double d1 = distanceSensor.getDistance(DistanceUnit.METER);
+        double d2 = distanceSensor2.getDistance(DistanceUnit.METER);
+        if (d1 == 0){
+            return d2;
+        }
+        else{
+            return d1;
+        }
+    }
+
+    public void activate() {
         targetsSkyStone.activate();
         tfod.activate();
     }
 
-    public void stop(){
+    public void stop() {
         tfod.shutdown();
         targetsSkyStone.deactivate();
     }
-
     public double[] getInfo(){
         boolean targetVisible = false;
         for (VuforiaTrackable trackable : allTrackables) {
@@ -79,50 +98,64 @@ public class Vision {
         if (targetVisible) {
             Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
             VectorF translation = lastLocation.getTranslation();
-            return new double[]{translation.get(0)/mmPerInch,rotation.thirdAngle,translation.get(1)/mmPerInch};
+            return new double[]{translation.get(0)/mmPerInch,rotation.thirdAngle,translation.get(1)/mmPerInch,translation.get(1)/mmPerInch};
         }
         else {
             return null;
         }
     }
-    public double[] findTrackableInfo(String find){
-        boolean targetVisible = false;
-        String message = "";
+
+
+    public String getName() {
         for (VuforiaTrackable trackable : allTrackables) {
-            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                targetVisible = true;
-                if (trackable.getName().equals(find)){
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                return trackable.getName();
+            }
+        }
+        return "None";
+    }
+
+    public double distanceToSkyStone() {
+        boolean targetVisible = false;
+        for (VuforiaTrackable trackable : allTrackables) {
+            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                if (trackable.getName().equals("Stone Target")) {
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
                     if (robotLocationTransform != null) {
                         lastLocation = robotLocationTransform;
                     }
+                    targetVisible = true;
                     break;
                 }
-
             }
         }
 
+        // Provide feedback as to where the robot is located (if we know).
         if (targetVisible) {
-            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+            // express position (translation) of robot in inches.
             VectorF translation = lastLocation.getTranslation();
-            //message += String.format("Rot (deg) {Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            //message += String.format("Pos (in) {X, Y, Z}%.1f, %.1f, %.1f",translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-            return new double[]{translation.get(1)/mmPerInch,rotation.thirdAngle};
-        }
-        else {
-            return new double[]{};
-        }
 
+
+            return translation.get(1) ;
+        } else {
+            return 390;
+        }
     }
 
-    public double angleToSkyStone(){
-        for(Recognition r:tfod.getRecognitions()){
+    public double angleToSkystone(){
+        List<Recognition> recg = tfod.getRecognitions();
+        for(Recognition r:recg){
             if (r.getLabel().equals("Skystone")){
-                return r.estimateAngleToObject(DEGREES);
+                return r.estimateAngleToObject(AngleUnit.DEGREES);
             }
         }
         return 390;
     }
+
+
+
+
+
 
     public boolean visible(String name){
         List<Recognition> recognitions = tfod.getRecognitions();
@@ -138,7 +171,7 @@ public class Vision {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = 0.8;
+        tfodParameters.minimumConfidence = 0.6;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
     }
@@ -154,6 +187,7 @@ public class Vision {
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = CAMERA_CHOICE;
+
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
@@ -184,6 +218,7 @@ public class Vision {
         rear1.setName("Rear Perimeter 1");
         VuforiaTrackable rear2 = targetsSkyStone.get(12);
         rear2.setName("Rear Perimeter 2");
+
 
         allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(targetsSkyStone);

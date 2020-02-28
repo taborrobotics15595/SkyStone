@@ -17,7 +17,6 @@ public class FinalTeleOp extends LinearOpMode {
     private double[] powers = {1,0.4};
     private int index = 0;
     private double power = powers[index];
-    private int mode = 1;
 
     int[] current;
 
@@ -28,12 +27,12 @@ public class FinalTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = new MecanumDriveTrain(hardwareMap,"Motor1", "Motor2", "Motor3", "Motor4");
         robot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motor = hardwareMap.get(DcMotor.class,"Motor");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //mover = new FoundationMover(hardwareMap,"Servo1","Servo2");
 
         collector = new StoneCollector(hardwareMap,"Grabber1","Grabber2","Touch_Sensor");
@@ -42,8 +41,8 @@ public class FinalTeleOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            powerY = -mode*Range.clip(gamepad1.left_stick_y, -power, power);
-            powerX = mode*Range.clip(gamepad1.left_stick_x, -power, power);
+            powerY = -Range.clip(gamepad1.left_stick_y, -power, power);
+            powerX = Range.clip(gamepad1.left_stick_x, -power, power);
             turn = Range.clip(gamepad1.right_stick_x, -power, power);
 
             robot.setPower(power,powerY,powerX,turn);
@@ -57,16 +56,12 @@ public class FinalTeleOp extends LinearOpMode {
             else{
                 motor.setPower(0);
             }
-            /*
-            if (gamepad2.b){
-                mover.toggle();
-                Thread.sleep(400);
-            }
 
-            */
+
+
             if (gamepad1.a){
                 collector.activate(true);
-                Thread.sleep(400);
+                sleep(300);
             }
 
             if (gamepad1.x){
@@ -77,11 +72,13 @@ public class FinalTeleOp extends LinearOpMode {
                 else{
                     collector.activate(false);
                 }
-                Thread.sleep(400);
+                sleep(300);
             }
 
             if (gamepad1.y){
-                mode *= -1;
+               index = (index + 1)%powers.length;
+               power = powers[index];
+               sleep(300);
             }
             collector.checkObtained();
 

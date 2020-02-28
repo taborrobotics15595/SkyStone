@@ -11,21 +11,19 @@ public class RedSkystoneOnlyAutonomous extends AutonomousMode {
 
         waitForStart();
 
-        lowerArm(1);
 
         lineUp();
 
-        getBlock();
+        getBlock(1);
 
-        double distance = (22.75 * 3  - 20)* 0.0254;
-        goBuildSite(distance);
+        double distance = (22.75 * 3  - 28);
+        goBuildSite(distance,1);
 
-        raiseArm(0.5);
 
         ejectBlock();
 
         lowerArm(0.5);
-        driveTrain.goToPositions(encodersFromDistance(forward,-distance),drivePower);
+        driveTrain.goToPositions(encodersFromDistance(forward,-distance*0.0254),drivePower);
 
     }
 }
